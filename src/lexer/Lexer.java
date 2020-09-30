@@ -87,14 +87,7 @@ public class Lexer {
                 sb.append(ch);
                 readch();
             } while (Character.isLetterOrDigit(ch));
-            String lexeme = sb.toString();
-            Word word = (Word) words.get(lexeme);
-            if (word != null){
-                return word; //palavra já existe na HashTable
-            }
-            word = new Word(lexeme, Tag.ID);
-            words.put(lexeme, word);
-            return word;
+            return Word.getOrCreate(words, sb.toString());
         }
 
         //Caracteres não especificados

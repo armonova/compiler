@@ -1,5 +1,7 @@
 package lexer;
 
+import java.util.Hashtable;
+
 public class Word extends Token {
     private String lexeme = "";
 
@@ -11,12 +13,12 @@ public class Word extends Token {
     }
 
     public String toString() {
-        return "" + lexeme;
+        return "<" + tag + ", " + lexeme + ">";
     }
 
-    public static Word getOrCreate( String lexeme){
-        Word word = (Word) words.get(lexeme);
-        if (word != null){
+    public static Word getOrCreate(Hashtable<String, Word> words, String lexeme) {
+        Word word = words.get(lexeme);
+        if (word != null) {
             return word; //palavra já existe na HashTable
         }
         word = new Word(lexeme, Tag.ID);
