@@ -1,29 +1,33 @@
 package lexer;
 
-public class Tag {
+public enum Tag {
     // Palavras reservadas
-    public final static int
-        PROGRAM = 256,
-        IS = 257,
-        DECLARE = 258,
-        INIT = 259,
-        END = 260,
-        INT = 261,
-        FLOAT = 262,
-        CHAR = 263,
-        IF = 264,
-        THEN = 265,
-        ELSE = 266,
-        REPEAT = 267,
-        UNTIL = 268,
-        WHILE = 269,
-        DO = 270,
-        IN = 271,
-        OUT = 272,
-        AND_AND = 271,
-        OR_OR = 273,
+    PROGRAM, IS, DECLARE, INIT, BEGIN, END,
+    INT, FLOAT, CHAR,
+    IF, THEN, ELSE,
+    REPEAT, UNTIL, WHILE, DO,
+    IN, OUT,
+
+    // Operadores
+    AND_AND, OR_OR, NOT,
+    EQ,
+    EQ_EQ, GT, GT_EQ, LT, LT_EQ, NOT_EQ,
+    LT_LT, GT_GT,
+    MINUS, PLUS, TIMES, DIVIDED,
+
+    // Pontuação
+    SEMICOLON, COLON, COMMA, DOT,
+    OPEN_PAR, CLOSE_PAR,
 
     // outros tokens
-        NUM = 274,
-        ID = 275;
+    INT_CONST, FLOAT_CONST,
+    CHAR_CONST,
+    LITERAL,
+    ID;
+
+    @Override
+    public String toString() {
+        return this.name();
+    }
+
 }
