@@ -6,6 +6,7 @@ package symbols;/*
 
 import lexer.*;
 
+import java.util.Comparator;
 import java.util.Hashtable;
 
 /**
@@ -56,16 +57,20 @@ public class Env {
         return level;
     }
 
-    public void print() { // Método para facilitar a visualização dos ambientes
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
         if (prev != null) {
-            prev.print();
+            sb.append(prev);
         }
-        System.out.println("\nTabela de símbolos nível " + level + " {");
-        table.forEach((token, id) -> System.out.println("\t" + token + ", " + id));
-        System.out.println("}\n");
+        sb.append("\nTabela de símbolos nível ").append(level).append(" {").append('\n');
+        table.entrySet().stream().sorted(Comparator.comparing(entry -> entry.getKey().toString()))
+                .forEach(entry -> sb.append('\t').append(entry.getKey()).append(", ").append(entry.getValue()).append('\n'));
+        sb.append("}\n");
+        return sb.toString();
     }
 
-    public Id getOrCreate(Token token) {  
+    public Id getOrCreate(Token token) {
         Id id = get(token);
         if (id == null) {
             return put(token);

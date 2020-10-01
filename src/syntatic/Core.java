@@ -25,12 +25,12 @@ public class Core {
             try {
                 token = lexer.scan();
             } catch (Exception e) {
-                currentEnviroment.print(); // Nesta etapa, exibe TS mesmo se der algum erro
+                System.out.println(currentEnviroment); // Nesta etapa, exibe TS mesmo se der algum erro
                 throw e;
             }
         }
 
-        currentEnviroment.print(); // Exibe TS final
+        System.out.println(currentEnviroment); // Exibe TS final
 
     }
 

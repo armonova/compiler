@@ -1,4 +1,4 @@
-package lexer;
+package symbols;
 
 public class Id {
 
