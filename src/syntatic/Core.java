@@ -17,7 +17,7 @@ public class Core {
 
         currentEnviroment = new Env(); // Define ambiente raiz
         Lexer lexer = new Lexer(fileName); // Define analisador léxico
-        // //
+
         System.out.println("\nSequência de tokens:\n");
         Token token = lexer.scan();
         while (token != null) { // Obtem e exibe todos os tokens do analisador léxico
@@ -31,6 +31,8 @@ public class Core {
         }
 
         System.out.println(currentEnviroment); // Exibe TS final
+
+        System.out.println("Análise léxica concluída com sucesso");
 
     }
 
