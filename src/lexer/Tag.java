@@ -2,7 +2,7 @@ package lexer;
 
 public enum Tag {
     // Palavras reservadas
-    PROGRAM, IS, DECLARE, INIT, BEGIN, END,
+    PROGRAM, IS, DECLARE, BEGIN, END,
     INT, FLOAT, CHAR,
     IF, THEN, ELSE,
     REPEAT, UNTIL, WHILE, DO,
