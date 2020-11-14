@@ -252,49 +252,49 @@ public class Syntatic {
     }
 
     private void simpleExprTail() throws Exception {
-        if (token.is(Tag.ID) ||
-            token.is(Tag.INT_CONST) ||
-            token.is(Tag.FLOAT_CONST) ||
-            token.is(Tag.CHAR_CONST) ||
-            token.is(Tag.OPEN_PAR) ||
-            token.is(Tag.NOT) ||
-            token.is(Tag.MINUS)) {
-            factorA();
-            termTail();
-        } else {
-            error();
-        }
+        // TODO: implementar
+        error();
     }
 
     private void term() throws Exception {
-        if (token.is(Tag.TIMES) || token.is(Tag.DIVIDED) || token.is(Tag.AND_AND)) {
-            mulop();
+        if (token.is(Tag.ID) ||
+                token.is(Tag.INT_CONST) ||
+                token.is(Tag.FLOAT_CONST) ||
+                token.is(Tag.CHAR_CONST) ||
+                token.is(Tag.OPEN_PAR) ||
+                token.is(Tag.NOT) ||
+                token.is(Tag.MINUS)) {
             factorA();
             termTail();
-        } else if (token.is(Tag.SEMICOLON) ||
-            token.is(Tag.END) ||
-            token.is(Tag.ELSE) ||
-            token.is(Tag.UNTIL) ||
-            token.is(Tag.MINUS) ||
-            token.is(Tag.EQ_EQ) ||
-            token.is(Tag.GT) ||
-            token.is(Tag.GT_EQ) ||
-            token.is(Tag.LT) ||
-            token.is(Tag.LT_EQ) ||
-            token.is(Tag.NOT_EQ) ||
-            token.is(Tag.THEN) ||
-            token.is(Tag.DO) ||
-            token.is(Tag.PLUS) ||
-            token.is(Tag.OR_OR)) {
-            lambda();
         } else {
             error();
         }
     }
 
     private void termTail() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.TIMES) || token.is(Tag.DIVIDED) || token.is(Tag.AND_AND)) {
+            mulop();
+            factorA();
+            termTail();
+        } else if (token.is(Tag.SEMICOLON) ||
+                token.is(Tag.END) ||
+                token.is(Tag.ELSE) ||
+                token.is(Tag.UNTIL) ||
+                token.is(Tag.MINUS) ||
+                token.is(Tag.EQ_EQ) ||
+                token.is(Tag.GT) ||
+                token.is(Tag.GT_EQ) ||
+                token.is(Tag.LT) ||
+                token.is(Tag.LT_EQ) ||
+                token.is(Tag.NOT_EQ) ||
+                token.is(Tag.THEN) ||
+                token.is(Tag.DO) ||
+                token.is(Tag.PLUS) ||
+                token.is(Tag.OR_OR)) {
+            lambda();
+        } else {
+            error();
+        }
     }
 
     private void factorA() throws Exception {
@@ -386,5 +386,4 @@ public class Syntatic {
             error();
         }
     }
-
 }
