@@ -1,5 +1,6 @@
 package syntatic;
 
+import jdk.javadoc.doclet.Taglet;
 import lexer.Lexer;
 import lexer.Tag;
 import lexer.Token;
@@ -118,18 +119,34 @@ public class Syntatic {
     }
 
     private void decl() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.ID)) {
+            identLit();
+            eat(Tag.COLON);
+            type();
+        } else {
+            error();
+        }
     }
 
     private void identLit() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.ID)) {
+            eat(Tag.ID);
+            identTail();
+        } else {
+            error();
+        }
     }
 
     private void identTail() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.COMMA)) {
+            eat(Tag.COMMA);
+            eat(Tag.ID);
+            identTail();
+        } else if (token.is(Tag.COLON)) {
+            lambda();
+        } else {
+            error();
+        }
     }
 
     private void type() throws Exception {
