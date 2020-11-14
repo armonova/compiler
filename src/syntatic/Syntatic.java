@@ -53,10 +53,23 @@ public class Syntatic {
     /* Símbolo inicial da gramática */
     private void programInitial() throws Exception {
         if (token.is(Tag.PROGRAM)) {
-            // TODO: implementar
-//            programNode();
+            programNode();
+            eatEOF();
+            return;
         }
-        eatEOF();
+        throw unknownTokenException();
     }
+
+    private void programNode() throws Exception {
+        if (token.is(Tag.PROGRAM)){
+            eat(Tag.PROGRAM);
+            eat(Tag.ID);
+            eat(Tag.IS);
+//            body();
+            return;
+        }
+        throw unknownTokenException();
+    }
+
 
 }
