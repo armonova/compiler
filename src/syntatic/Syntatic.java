@@ -1,6 +1,5 @@
 package syntatic;
 
-import jdk.javadoc.doclet.Taglet;
 import lexer.Lexer;
 import lexer.Tag;
 import lexer.Token;
@@ -518,7 +517,7 @@ public class Syntatic {
             eat(Tag.PLUS);
         } else if (token.is(Tag.MINUS)) {
             eat(Tag.MINUS);
-        } else if(token.is(Tag.OR_OR)) {
+        } else if (token.is(Tag.OR_OR)) {
             eat(Tag.OR_OR);
         } else {
             error();
@@ -528,7 +527,7 @@ public class Syntatic {
     private void mulop() throws Exception {
         if (token.is(Tag.TIMES)) {
             eat(Tag.TIMES);
-        } else if (token.is(Tag.DIVIDED)){
+        } else if (token.is(Tag.DIVIDED)) {
             eat(Tag.DIVIDED);
         } else if (token.is(Tag.AND_AND)) {
             eat(Tag.AND_AND);
