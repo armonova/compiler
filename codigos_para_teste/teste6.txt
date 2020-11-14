@@ -1,5 +1,0 @@
-program teste6 is
-begin
-	repeat a = a + 1 until a == 100
-end.
-

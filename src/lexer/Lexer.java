@@ -7,7 +7,7 @@ import java.util.*;
 
 public class Lexer {
 
-    public static int line = 1; //contador de linhas
+    private long line = 1; //contador de linhas
 
     private char ch = ' '; //caractere lido do arquivo
     private final FileReader file;
@@ -129,9 +129,12 @@ public class Lexer {
             return analyzeWord();
         }
 
-        // Fim de arquivo (no caso de um caractere desconhecido, também interrompe a execução do analisador)
+        // Fim de arquivo retorna null
         if (!Character.isDefined(ch)) {
-            return null;
+            int EOF = -1;
+            if (file.read() == EOF) {
+                return null;
+            }
         }
 
         // Caracteres que não são conhecidos pela gramática geram um erro
@@ -283,4 +286,7 @@ public class Lexer {
         return new Exception("Erro: caractere inesperado encontrado na linha " + line + ": '" + ch + "'");
     }
 
+    public long getLine() {
+        return this.line;
+    }
 }

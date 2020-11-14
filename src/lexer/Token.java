@@ -36,4 +36,7 @@ public class Token {
     public final static Token OPEN_PAR = new Token(Tag.OPEN_PAR);
     public final static Token CLOSE_PAR = new Token(Tag.CLOSE_PAR);
 
+    public boolean is(Tag tag) {
+        return this.tag == tag;
+    }
 }

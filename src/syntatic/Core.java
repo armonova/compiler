@@ -17,22 +17,9 @@ public class Core {
 
         currentEnviroment = new Env(); // Define ambiente raiz
         Lexer lexer = new Lexer(fileName); // Define analisador léxico
+        Syntatic syntatic = new Syntatic(lexer);
 
-        System.out.println("\nSequência de tokens:\n");
-        Token token = lexer.scan();
-        while (token != null) { // Obtem e exibe todos os tokens do analisador léxico
-            System.out.println(token.toString());
-            try {
-                token = lexer.scan();
-            } catch (Exception e) {
-                System.out.println(currentEnviroment); // Nesta etapa, exibe TS mesmo se der algum erro
-                throw e;
-            }
-        }
-
-        System.out.println(currentEnviroment); // Exibe TS final
-
-        System.out.println("Análise léxica concluída com sucesso");
+        syntatic.analyze();
 
     }
 
