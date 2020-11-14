@@ -252,13 +252,44 @@ public class Syntatic {
     }
 
     private void simpleExprTail() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.ID) ||
+            token.is(Tag.INT_CONST) ||
+            token.is(Tag.FLOAT_CONST) ||
+            token.is(Tag.CHAR_CONST) ||
+            token.is(Tag.OPEN_PAR) ||
+            token.is(Tag.NOT) ||
+            token.is(Tag.MINUS)) {
+            factorA();
+            termTail();
+        } else {
+            error();
+        }
     }
 
     private void term() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.TIMES) || token.is(Tag.DIVIDED) || token.is(Tag.AND_AND)) {
+            mulop();
+            factorA();
+            termTail();
+        } else if (token.is(Tag.SEMICOLON) ||
+            token.is(Tag.END) ||
+            token.is(Tag.ELSE) ||
+            token.is(Tag.UNTIL) ||
+            token.is(Tag.MINUS) ||
+            token.is(Tag.EQ_EQ) ||
+            token.is(Tag.GT) ||
+            token.is(Tag.GT_EQ) ||
+            token.is(Tag.LT) ||
+            token.is(Tag.LT_EQ) ||
+            token.is(Tag.NOT_EQ) ||
+            token.is(Tag.THEN) ||
+            token.is(Tag.DO) ||
+            token.is(Tag.PLUS) ||
+            token.is(Tag.OR_OR)) {
+            lambda();
+        } else {
+            error();
+        }
     }
 
     private void termTail() throws Exception {
@@ -267,33 +298,93 @@ public class Syntatic {
     }
 
     private void factorA() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.ID) || token.is(Tag.INT_CONST) || token.is(Tag.FLOAT_CONST) || token.is(Tag.CHAR_CONST) || token.is(Tag.OPEN_PAR)) {
+            factor();
+        } else if (token.is(Tag.NOT)) {
+            eat(Tag.NOT);
+            factor();
+        } else if (token.is(Tag.MINUS)) {
+            eat(Tag.MINUS);
+            factor();
+        } else {
+            error();
+        }
     }
 
     private void factor() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.ID)) {
+            eat(Tag.ID);
+        } else if (token.is(Tag.INT_CONST) || token.is(Tag.FLOAT_CONST) || token.is(Tag.CHAR_CONST)) {
+            constant();
+        } else if (token.is(Tag.OPEN_PAR)) {
+            eat(Tag.OPEN_PAR);
+            expression();
+            eat(Tag.CLOSE_PAR);
+        } else {
+            error();
+        }
     }
 
     private void relop() throws Exception {
-        // TODO: implementar
-        error();
+        switch (token.tag) {
+            case EQ_EQ:
+                eat(Tag.EQ_EQ);
+                break;
+            case GT:
+                eat(Tag.GT);
+                break;
+            case GT_EQ:
+                eat(Tag.GT_EQ);
+                break;
+            case LT:
+                eat(Tag.LT);
+                break;
+            case LT_EQ:
+                eat(Tag.LT_EQ);
+                break;
+            case NOT_EQ:
+                eat(Tag.NOT_EQ);
+                break;
+            default:
+                error();
+                break;
+        }
     }
 
     private void addop() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.PLUS)) {
+            eat(Tag.PLUS);
+        } else if (token.is(Tag.MINUS)) {
+            eat(Tag.MINUS);
+        } else if(token.is(Tag.OR_OR)) {
+            eat(Tag.OR_OR);
+        } else {
+            error();
+        }
     }
 
     private void mulop() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.TIMES)) {
+            eat(Tag.TIMES);
+        } else if (token.is(Tag.DIVIDED)){
+            eat(Tag.DIVIDED);
+        } else if (token.is(Tag.AND_AND)) {
+            eat(Tag.AND_AND);
+        } else {
+            error();
+        }
     }
 
     private void constant() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.INT_CONST)) {
+            eat(Tag.INT_CONST);
+        } else if (token.is(Tag.FLOAT_CONST)) {
+            eat(Tag.FLOAT_CONST);
+        } else if (token.is(Tag.CHAR_CONST)) {
+            eat(Tag.CHAR_CONST);
+        } else {
+            error();
+        }
     }
 
 }
