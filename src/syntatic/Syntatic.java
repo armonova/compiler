@@ -24,17 +24,16 @@ public class Syntatic {
     void eat(Tag tag) throws Exception {
         if (token.is(tag)) {
             advance();
-            return;
+        } else {
+            error();
         }
-        throw unknownTokenException();
     }
 
     /* Verifica fim de arquivo */
     void eatEOF() throws Exception {
-        if (token == null) {
-            return;
+        if (token != null) { // O método lexer.scan retorna null para EOF e apenas para EOF
+            error();
         }
-        throw unknownTokenException();
     }
 
     /* Realiza a análise sintática */
@@ -93,5 +92,168 @@ public class Syntatic {
         }
     }
 
+    private void declList() throws Exception {
+        if (token.is(Tag.ID)) {
+            decl();
+            declTail();
+        } else {
+            error();
+        }
+    }
+
+    private void declTail() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void decl() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void identLit() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void identTail() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void type() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void stmtList() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void stmtTail() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void stmt() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void assignStmt() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void ifStmt() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void ifStmtEnd() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void condition() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void repeatStmt() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void stmtSuffix() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void whileStmt() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void stmtPrefix() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void readStmt() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void writeStmt() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void writable() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void expression() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void expressionEnd() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void simpleExpr() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void simpleExprTail() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void term() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void termTail() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void factorA() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void factor() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void relop() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void addop() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void mulop() throws Exception {
+        // TODO: implementar
+        error();
+    }
+
+    private void constant() throws Exception {
+        // TODO: implementar
+        error();
+    }
 
 }
