@@ -150,8 +150,20 @@ public class Syntatic {
     }
 
     private void type() throws Exception {
-        // TODO: implementar
-        error();
+        switch (token.tag) {
+            case INT:
+                eat(Tag.INT);
+                break;
+            case FLOAT:
+                eat(Tag.FLOAT);
+                break;
+            case CHAR:
+                eat(Tag.CHAR);
+                break;
+            default:
+                error();
+                break;
+        }
     }
 
     private void stmtList() throws Exception {
