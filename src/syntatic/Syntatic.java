@@ -48,6 +48,10 @@ public class Syntatic {
         return new Exception("Erro: token inesperado encontrado na linha " + lexer.getLine() + ": " + token.toString());
     }
 
+    private void error() throws Exception {
+        throw unknownTokenException();
+    }
+
     // Procedimentos para os símbolos não terminais:
 
     /* Símbolo inicial da gramática */
@@ -57,18 +61,37 @@ public class Syntatic {
             eatEOF();
             return;
         }
-        throw unknownTokenException();
+        error();
     }
 
     private void programNode() throws Exception {
-        if (token.is(Tag.PROGRAM)){
+        if (token.is(Tag.PROGRAM)) {
             eat(Tag.PROGRAM);
             eat(Tag.ID);
             eat(Tag.IS);
-//            body();
+            body();
             return;
         }
-        throw unknownTokenException();
+        error();
+    }
+
+    private void body() throws Exception {
+        if (token.is(Tag.DECLARE)) {
+            eat(Tag.DECLARE);
+            declList();
+            eat(Tag.BEGIN);
+            stmtList();
+            eat(Tag.END);
+            eat(Tag.DOT);
+            return;
+        } else if (token.is(Tag.BEGIN)) {
+            eat(Tag.BEGIN);
+            stmtList();
+            eat(Tag.END);
+            eat(Tag.DOT);
+            return;
+        }
+        error();
     }
 
 
