@@ -305,7 +305,7 @@ public class Syntatic {
     }
 
     private void readStmt() throws Exception {
-        if (token.is(Tag.IS)) {
+        if (token.is(Tag.IN)) {
             eat(Tag.IN);
             eat(Tag.LT_LT);
             eat(Tag.ID);
@@ -410,7 +410,8 @@ public class Syntatic {
                 || token.is(Tag.LT_EQ)
                 || token.is(Tag.NOT_EQ)
                 || token.is(Tag.THEN)
-                || token.is(Tag.DO)) {
+                || token.is(Tag.DO)
+                || token.is(Tag.CLOSE_PAR)) {
             lambda();
         } else {
             error();
@@ -451,7 +452,8 @@ public class Syntatic {
                 token.is(Tag.THEN) ||
                 token.is(Tag.DO) ||
                 token.is(Tag.PLUS) ||
-                token.is(Tag.OR_OR)) {
+                token.is(Tag.OR_OR) ||
+                token.is(Tag.CLOSE_PAR)) {
             lambda();
         } else {
             error();
