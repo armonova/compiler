@@ -59,9 +59,9 @@ public class Syntatic {
         if (token.is(Tag.PROGRAM)) {
             programNode();
             eatEOF();
-            return;
+        } else {
+            error();
         }
-        error();
     }
 
     private void programNode() throws Exception {
@@ -70,9 +70,9 @@ public class Syntatic {
             eat(Tag.ID);
             eat(Tag.IS);
             body();
-            return;
+        } else {
+            error();
         }
-        error();
     }
 
     private void body() throws Exception {
@@ -83,15 +83,14 @@ public class Syntatic {
             stmtList();
             eat(Tag.END);
             eat(Tag.DOT);
-            return;
         } else if (token.is(Tag.BEGIN)) {
             eat(Tag.BEGIN);
             stmtList();
             eat(Tag.END);
             eat(Tag.DOT);
-            return;
+        } else {
+            error();
         }
-        error();
     }
 
 
