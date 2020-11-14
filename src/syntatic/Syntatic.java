@@ -36,6 +36,10 @@ public class Syntatic {
         }
     }
 
+    /* Método que não faz nada, para representar o lambda e melhorar a legibilidade do código */
+    void lambda() {
+    }
+
     /* Realiza a análise sintática */
     public void analyze() throws Exception {
         programInitial();
@@ -102,8 +106,15 @@ public class Syntatic {
     }
 
     private void declTail() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.SEMICOLON)) {
+            eat(Tag.SEMICOLON);
+            decl();
+            declTail();
+        } else if (token.is(Tag.BEGIN)) {
+            lambda();
+        } else {
+            error();
+        }
     }
 
     private void decl() throws Exception {
