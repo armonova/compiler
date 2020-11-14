@@ -162,98 +162,260 @@ public class Syntatic {
                 break;
             default:
                 error();
-                break;
         }
     }
 
     private void stmtList() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.ID)
+                || token.is(Tag.IF)
+                || token.is(Tag.WHILE)
+                || token.is(Tag.REPEAT)
+                || token.is(Tag.IN)
+                || token.is(Tag.OUT)) {
+            stmt();
+            stmtTail();
+        } else {
+            error();
+        }
     }
 
     private void stmtTail() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.SEMICOLON)) {
+            eat(Tag.SEMICOLON);
+            stmt();
+            stmtTail();
+        } else if (token.is(Tag.END)
+                || token.is(Tag.ELSE)
+                || token.is(Tag.UNTIL)) {
+            lambda();
+        } else {
+            error();
+        }
     }
 
     private void stmt() throws Exception {
-        // TODO: implementar
-        error();
+        switch (token.tag) {
+            case ID:
+                assignStmt();
+                break;
+            case IF:
+                ifStmt();
+                break;
+            case WHILE:
+                whileStmt();
+                break;
+            case REPEAT:
+                repeatStmt();
+                break;
+            case IN:
+                readStmt();
+                break;
+            case OUT:
+                writeStmt();
+                break;
+            default:
+                error();
+        }
     }
 
     private void assignStmt() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.ID)) {
+            eat(Tag.ID);
+            eat(Tag.EQ);
+            simpleExpr();
+        } else {
+            error();
+        }
     }
 
     private void ifStmt() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.IF)) {
+            eat(Tag.IF);
+            condition();
+            eat(Tag.THEN);
+            stmtList();
+            ifStmtEnd();
+        } else {
+            error();
+        }
     }
 
     private void ifStmtEnd() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.END)) {
+            eat(Tag.END);
+        } else if (token.is(Tag.ELSE)) {
+            eat(Tag.ELSE);
+            stmtList();
+            eat(Tag.END);
+        } else {
+            error();
+        }
     }
 
     private void condition() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.ID)
+                || token.is(Tag.INT_CONST)
+                || token.is(Tag.FLOAT_CONST)
+                || token.is(Tag.CHAR_CONST)
+                || token.is(Tag.OPEN_PAR)
+                || token.is(Tag.NOT)
+                || token.is(Tag.MINUS)) {
+            expression();
+        } else {
+            error();
+        }
     }
 
     private void repeatStmt() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.REPEAT)) {
+            eat(Tag.REPEAT);
+            stmtList();
+            stmtSuffix();
+        } else {
+            error();
+        }
     }
 
     private void stmtSuffix() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.UNTIL)) {
+            eat(Tag.UNTIL);
+            condition();
+        } else {
+            error();
+        }
     }
 
     private void whileStmt() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.WHILE)) {
+            stmtPrefix();
+            stmtList();
+            eat(Tag.END);
+        } else {
+            error();
+        }
     }
 
     private void stmtPrefix() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.WHILE)) {
+            eat(Tag.WHILE);
+            condition();
+            eat(Tag.DO);
+        } else {
+            error();
+        }
     }
 
     private void readStmt() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.IS)) {
+            eat(Tag.IN);
+            eat(Tag.LT_LT);
+            eat(Tag.ID);
+        } else {
+            error();
+        }
     }
 
     private void writeStmt() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.OUT)) {
+            eat(Tag.OUT);
+            eat(Tag.GT_GT);
+            writable();
+        } else {
+            error();
+        }
     }
 
     private void writable() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.ID)
+                || token.is(Tag.INT_CONST)
+                || token.is(Tag.FLOAT_CONST)
+                || token.is(Tag.CHAR_CONST)
+                || token.is(Tag.OPEN_PAR)
+                || token.is(Tag.NOT)
+                || token.is(Tag.MINUS)) {
+            simpleExpr();
+        } else if (token.is(Tag.LITERAL)) {
+            eat(Tag.LITERAL);
+        } else {
+            error();
+        }
     }
 
     private void expression() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.ID)
+                || token.is(Tag.INT_CONST)
+                || token.is(Tag.FLOAT_CONST)
+                || token.is(Tag.CHAR_CONST)
+                || token.is(Tag.OPEN_PAR)
+                || token.is(Tag.NOT)
+                || token.is(Tag.MINUS)) {
+            simpleExpr();
+            expressionEnd();
+        } else {
+            error();
+        }
     }
 
     private void expressionEnd() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.EQ_EQ)
+                || token.is(Tag.GT)
+                || token.is(Tag.GT_EQ)
+                || token.is(Tag.LT)
+                || token.is(Tag.LT_EQ)
+                || token.is(Tag.NOT_EQ)) {
+            relop();
+            simpleExpr();
+        } else if (token.is(Tag.SEMICOLON)
+                || token.is(Tag.END)
+                || token.is(Tag.ELSE)
+                || token.is(Tag.UNTIL)
+                || token.is(Tag.THEN)
+                || token.is(Tag.DO)
+                || token.is(Tag.CLOSE_PAR)) {
+            lambda();
+        } else {
+            error();
+        }
     }
 
     private void simpleExpr() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.ID)
+                || token.is(Tag.INT_CONST)
+                || token.is(Tag.FLOAT_CONST)
+                || token.is(Tag.CHAR_CONST)
+                || token.is(Tag.OPEN_PAR)
+                || token.is(Tag.NOT)
+                || token.is(Tag.MINUS)) {
+            term();
+            simpleExprTail();
+        } else {
+            error();
+        }
     }
 
     private void simpleExprTail() throws Exception {
-        // TODO: implementar
-        error();
+        if (token.is(Tag.MINUS)
+                || token.is(Tag.PLUS)
+                || token.is(Tag.OR_OR)) {
+            addop();
+            term();
+            simpleExprTail();
+        } else if (token.is(Tag.SEMICOLON)
+                || token.is(Tag.END)
+                || token.is(Tag.ELSE)
+                || token.is(Tag.UNTIL)
+                || token.is(Tag.EQ_EQ)
+                || token.is(Tag.GT)
+                || token.is(Tag.GT_EQ)
+                || token.is(Tag.LT)
+                || token.is(Tag.LT_EQ)
+                || token.is(Tag.NOT_EQ)
+                || token.is(Tag.THEN)
+                || token.is(Tag.DO)) {
+            lambda();
+        } else {
+            error();
+        }
     }
 
     private void term() throws Exception {
