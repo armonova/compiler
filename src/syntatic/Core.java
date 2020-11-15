@@ -17,7 +17,7 @@ public class Core {
 
         currentEnviroment = new Env(); // Define ambiente raiz
         Lexer lexer = new Lexer(fileName); // Define analisador léxico
-        Syntatic syntatic = new Syntatic(lexer);
+        Syntatic syntatic = new Syntatic(lexer); // Define analisador sintático
 
         syntatic.analyze();
 

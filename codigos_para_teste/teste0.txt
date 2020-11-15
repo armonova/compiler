@@ -1,16 +1,30 @@
-program teste2 is
+program teste5 is
 declare
-a, b, c:int;
-d, var: float
+a, b, c, maior, outro: int
 begin
-teste2 = 1;
+repeat
+out >> "A";
 in << a;
-b = a * a;
+out >> "B";
+in << b;
+out >> "C";
+in << c;
 
-c = b + a/2 * (35/b);
+if ( (a>b) && (a>c) ) then
+maior = a
 
-out c;
-val := 34.2
-c := val + 2.2;
-out >> val
+else
+if (b>c) then
+maior = b
+
+else
+maior = c
+end
+end;
+out >> "Maior valor:";
+out >> maior;
+out >> "Outro?";
+in << outro;
+until (outro == 0)
+end.
 

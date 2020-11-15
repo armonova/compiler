@@ -42,13 +42,22 @@ public class Syntatic {
 
     /* Realiza a análise sintática */
     public void analyze() throws Exception {
-        programInitial();
+        try {
+            programInitial();
+        } catch (NullPointerException npe) { // O método lexer.scan retorna null para EOF e apenas para EOF
+            throw unnexpectedEndException();
+        }
         System.out.println("\nAnálise léxica e sintática concluída com sucesso.\n");
     }
 
     /* Erro lançado quando encontramos um token inesperado */
     private Exception unknownTokenException() {
         return new Exception("Erro: token inesperado encontrado na linha " + lexer.getLine() + ": " + token.toString());
+    }
+
+    /* Erro lançado quando encontramos fim de arquivo inesperado */
+    private Exception unnexpectedEndException() {
+        return new Exception("Erro: fim de arquivo inesperado encontrado na linha " + lexer.getLine());
     }
 
     private void error() throws Exception {
