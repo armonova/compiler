@@ -1,5 +1,5 @@
 program teste5 is
 begin
-	out >> 'c'
+	out >> -3
 end.
 

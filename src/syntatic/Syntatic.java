@@ -3,7 +3,6 @@ package syntatic;
 import lexer.Lexer;
 import lexer.Tag;
 import lexer.Token;
-import lexer.Word;
 import semantic.Expression;
 import semantic.Semantic;
 
@@ -43,8 +42,9 @@ public class Syntatic {
         }
     }
 
-    /* Método que não faz nada, para representar o lambda e melhorar a legibilidade do código */
-    void lambda() {
+    /* Método que representa o lambda */
+    private Expression lambda() {
+        return semantic.lambda();
     }
 
     /* Realiza a análise sintática */
@@ -435,7 +435,7 @@ public class Syntatic {
         }
     }
 
-    private void term() throws Exception {
+    private Expression term() throws Exception {
         if (token.is(Tag.ID) ||
                 token.is(Tag.INT_CONST) ||
                 token.is(Tag.FLOAT_CONST) ||
@@ -443,19 +443,21 @@ public class Syntatic {
                 token.is(Tag.OPEN_PAR) ||
                 token.is(Tag.NOT) ||
                 token.is(Tag.MINUS)) {
-            factorA();
-            termTail();
-        } else {
-            error();
+            Expression factorA = factorA();
+            Expression termTail = termTail();
+            return semantic.term(factorA, termTail);
         }
+        return error();
     }
 
-    private void termTail() throws Exception {
+    private Expression termTail() throws Exception {
         if (token.is(Tag.TIMES) || token.is(Tag.DIVIDED) || token.is(Tag.AND_AND)) {
-            mulop();
-            factorA();
-            termTail();
-        } else if (token.is(Tag.SEMICOLON) ||
+            Expression mulop = mulop();
+            Expression factorA = factorA();
+            Expression termTail = termTail();
+            return semantic.termTail(mulop, factorA, termTail);
+        }
+        if (token.is(Tag.SEMICOLON) ||
                 token.is(Tag.END) ||
                 token.is(Tag.ELSE) ||
                 token.is(Tag.UNTIL) ||
@@ -471,24 +473,27 @@ public class Syntatic {
                 token.is(Tag.PLUS) ||
                 token.is(Tag.OR_OR) ||
                 token.is(Tag.CLOSE_PAR)) {
-            lambda();
-        } else {
-            error();
+            return lambda();
         }
+        return error();
     }
 
-    private void factorA() throws Exception {
+    private Expression factorA() throws Exception {
         if (token.is(Tag.ID) || token.is(Tag.INT_CONST) || token.is(Tag.FLOAT_CONST) || token.is(Tag.CHAR_CONST) || token.is(Tag.OPEN_PAR)) {
-            factor();
-        } else if (token.is(Tag.NOT)) {
-            eat(Tag.NOT);
-            factor();
-        } else if (token.is(Tag.MINUS)) {
-            eat(Tag.MINUS);
-            factor();
-        } else {
-            error();
+            Expression factor = factor();
+            return semantic.factorA(factor);
         }
+        if (token.is(Tag.NOT)) {
+            eat(Tag.NOT);
+            Expression factor = factor();
+            return semantic.factorA(factor, Tag.NOT);
+        }
+        if (token.is(Tag.MINUS)) {
+            eat(Tag.MINUS);
+            Expression factor = factor();
+            return semantic.factorA(factor, Tag.MINUS);
+        }
+        return error();
     }
 
     private Expression factor() throws Exception {

@@ -25,4 +25,7 @@ public class Id {
                 + "#" + hashCode();
     }
 
+    public boolean typeIsNull() {
+        return type == null;
+    }
 }
