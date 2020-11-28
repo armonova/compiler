@@ -330,17 +330,17 @@ public class Syntatic {
         }
     }
 
-    private void writeStmt() throws Exception {
+    private Expression writeStmt() throws Exception {
         if (token.is(Tag.OUT)) {
             eat(Tag.OUT);
             eat(Tag.GT_GT);
             writable();
-        } else {
-            error();
+            return semantic.writeStmt();
         }
+        return error();
     }
 
-    private void writable() throws Exception {
+    private Expression writable() throws Exception {
         if (token.is(Tag.ID)
                 || token.is(Tag.INT_CONST)
                 || token.is(Tag.FLOAT_CONST)
@@ -348,12 +348,14 @@ public class Syntatic {
                 || token.is(Tag.OPEN_PAR)
                 || token.is(Tag.NOT)
                 || token.is(Tag.MINUS)) {
-            simpleExpr();
-        } else if (token.is(Tag.LITERAL)) {
-            eat(Tag.LITERAL);
-        } else {
-            error();
+            Expression simpleExpr = simpleExpr();
+            return semantic.writable(simpleExpr);
         }
+        if (token.is(Tag.LITERAL)) {
+            eat(Tag.LITERAL);
+            return semantic.writable();
+        }
+        return error();
     }
 
     private Expression expression() throws Exception {
@@ -364,37 +366,38 @@ public class Syntatic {
                 || token.is(Tag.OPEN_PAR)
                 || token.is(Tag.NOT)
                 || token.is(Tag.MINUS)) {
-            simpleExpr();
-            expressionEnd();
-        } else {
-            error();
+            Expression simpleExpr = simpleExpr();
+            Expression expressionEnd = expressionEnd();
+            return semantic.expression(simpleExpr, expressionEnd);
         }
-        return null;
+        return error();
     }
 
-    private void expressionEnd() throws Exception {
+    private Expression expressionEnd() throws Exception {
         if (token.is(Tag.EQ_EQ)
                 || token.is(Tag.GT)
                 || token.is(Tag.GT_EQ)
                 || token.is(Tag.LT)
                 || token.is(Tag.LT_EQ)
                 || token.is(Tag.NOT_EQ)) {
+            Tag tag = token.tag;
             relop();
-            simpleExpr();
-        } else if (token.is(Tag.SEMICOLON)
+            Expression simpleExpr = simpleExpr();
+            return semantic.expressionEnd(tag, simpleExpr);
+        }
+        if (token.is(Tag.SEMICOLON)
                 || token.is(Tag.END)
                 || token.is(Tag.ELSE)
                 || token.is(Tag.UNTIL)
                 || token.is(Tag.THEN)
                 || token.is(Tag.DO)
                 || token.is(Tag.CLOSE_PAR)) {
-            lambda();
-        } else {
-            error();
+            return lambda();
         }
+        return error();
     }
 
-    private void simpleExpr() throws Exception {
+    private Expression simpleExpr() throws Exception {
         if (token.is(Tag.ID)
                 || token.is(Tag.INT_CONST)
                 || token.is(Tag.FLOAT_CONST)
@@ -402,21 +405,23 @@ public class Syntatic {
                 || token.is(Tag.OPEN_PAR)
                 || token.is(Tag.NOT)
                 || token.is(Tag.MINUS)) {
-            term();
-            simpleExprTail();
-        } else {
-            error();
+            Expression term = term();
+            Expression simpleExprTail = simpleExprTail();
+            return semantic.simpleExpr(term, simpleExprTail);
         }
+        return error();
     }
 
-    private void simpleExprTail() throws Exception {
+    private Expression simpleExprTail() throws Exception {
         if (token.is(Tag.MINUS)
                 || token.is(Tag.PLUS)
                 || token.is(Tag.OR_OR)) {
-            addop();
-            term();
-            simpleExprTail();
-        } else if (token.is(Tag.SEMICOLON)
+            Expression addop = addop();
+            Expression term = term();
+            Expression simpleExprTail = simpleExprTail();
+            return semantic.simpleExprTail(addop, term, simpleExprTail);
+        }
+        if (token.is(Tag.SEMICOLON)
                 || token.is(Tag.END)
                 || token.is(Tag.ELSE)
                 || token.is(Tag.UNTIL)
@@ -429,20 +434,19 @@ public class Syntatic {
                 || token.is(Tag.THEN)
                 || token.is(Tag.DO)
                 || token.is(Tag.CLOSE_PAR)) {
-            lambda();
-        } else {
-            error();
+            return lambda();
         }
+        return error();
     }
 
     private Expression term() throws Exception {
         if (token.is(Tag.ID) ||
-                token.is(Tag.INT_CONST) ||
-                token.is(Tag.FLOAT_CONST) ||
-                token.is(Tag.CHAR_CONST) ||
-                token.is(Tag.OPEN_PAR) ||
-                token.is(Tag.NOT) ||
-                token.is(Tag.MINUS)) {
+                token.is(Tag.INT_CONST)
+                || token.is(Tag.FLOAT_CONST)
+                || token.is(Tag.CHAR_CONST)
+                || token.is(Tag.OPEN_PAR)
+                || token.is(Tag.NOT)
+                || token.is(Tag.MINUS)) {
             Expression factorA = factorA();
             Expression termTail = termTail();
             return semantic.term(factorA, termTail);
@@ -457,22 +461,22 @@ public class Syntatic {
             Expression termTail = termTail();
             return semantic.termTail(mulop, factorA, termTail);
         }
-        if (token.is(Tag.SEMICOLON) ||
-                token.is(Tag.END) ||
-                token.is(Tag.ELSE) ||
-                token.is(Tag.UNTIL) ||
-                token.is(Tag.MINUS) ||
-                token.is(Tag.EQ_EQ) ||
-                token.is(Tag.GT) ||
-                token.is(Tag.GT_EQ) ||
-                token.is(Tag.LT) ||
-                token.is(Tag.LT_EQ) ||
-                token.is(Tag.NOT_EQ) ||
-                token.is(Tag.THEN) ||
-                token.is(Tag.DO) ||
-                token.is(Tag.PLUS) ||
-                token.is(Tag.OR_OR) ||
-                token.is(Tag.CLOSE_PAR)) {
+        if (token.is(Tag.SEMICOLON)
+                || token.is(Tag.END)
+                || token.is(Tag.ELSE)
+                || token.is(Tag.UNTIL)
+                || token.is(Tag.MINUS)
+                || token.is(Tag.EQ_EQ)
+                || token.is(Tag.GT)
+                || token.is(Tag.GT_EQ)
+                || token.is(Tag.LT)
+                || token.is(Tag.LT_EQ)
+                || token.is(Tag.NOT_EQ)
+                || token.is(Tag.THEN)
+                || token.is(Tag.DO)
+                || token.is(Tag.PLUS)
+                || token.is(Tag.OR_OR)
+                || token.is(Tag.CLOSE_PAR)) {
             return lambda();
         }
         return error();

@@ -1,5 +1,6 @@
 program teste5 is
 begin
-	out >> -3
+	out >> ('1' > 1);
+	out >> (3 == 2)
 end.
 

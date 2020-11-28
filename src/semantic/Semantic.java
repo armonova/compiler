@@ -90,10 +90,10 @@ public class Semantic {
     public Expression factorA(Expression factor, Tag tag) throws Exception {
         switch (tag) {
             case NOT: {
-                if (factor.isBoolean()) {
+                if (factor.isBoolean() || factor.isInt()) {
                     return new Expression(Type.BOOLEAN);
                 }
-                return incorrectTypeError(factor.getType(), Type.BOOLEAN);
+                return incorrectTypeError(factor.getType(), Type.BOOLEAN, Type.INT);
             }
             case MINUS: {
                 if (factor.getType().isNumber()) {
@@ -189,4 +189,161 @@ public class Semantic {
 
     }
 
+    public Expression simpleExprTail(Expression addop, Expression term, Expression simpleExprTail) throws Exception {
+
+        if (addop.isBooleanOp()) {
+            if (term.isInt() || term.isBoolean()) {
+                if (simpleExprTail.isVoid() || simpleExprTail.isBoolean()) {
+                    return new Expression(Type.BOOLEAN);
+                }
+                return incorrectTypeError(simpleExprTail.getType(), Type.VOID, Type.BOOLEAN);
+            }
+            return incorrectTypeError(term.getType(), Type.INT, Type.BOOLEAN);
+        }
+
+        if (addop.isNumberOp()) {
+
+            if (term.isFloat()) {
+                if (simpleExprTail.isVoid() || simpleExprTail.isInt() || simpleExprTail.isFloat()) {
+                    return new Expression(Type.FLOAT);
+                }
+                return incorrectTypeError(simpleExprTail.getType(), Type.VOID, Type.INT, Type.FLOAT);
+            }
+
+            if (term.isInt()) {
+                if (simpleExprTail.isVoid() || simpleExprTail.isInt()) {
+                    return new Expression(Type.INT);
+                }
+                if (simpleExprTail.isFloat()) {
+                    return new Expression(Type.FLOAT);
+                }
+                return incorrectTypeError(simpleExprTail.getType(), Type.VOID, Type.INT, Type.FLOAT);
+            }
+
+            return incorrectTypeError(term.getType(), Type.INT, Type.FLOAT);
+
+        }
+
+        return incorrectTypeError(addop.getType(), Type.BOOLEAN_OP, Type.NUMBER_OP);
+
+    }
+
+    public Expression simpleExpr(Expression term, Expression simpleExprTail) throws Exception {
+
+        if (term.isBoolean()) {
+            if (simpleExprTail.isBoolean() || simpleExprTail.isVoid()) {
+                return new Expression(Type.BOOLEAN);
+            }
+            return incorrectTypeError(simpleExprTail.getType(), Type.BOOLEAN, Type.VOID);
+        }
+
+        if (term.isInt()) {
+            if (simpleExprTail.isVoid() || simpleExprTail.isInt()) {
+                return new Expression(Type.INT);
+            }
+            if (simpleExprTail.isBoolean()) {
+                return new Expression(Type.BOOLEAN);
+            }
+            if (simpleExprTail.isFloat()) {
+                return new Expression(Type.FLOAT);
+            }
+            return incorrectTypeError(simpleExprTail.getType(), Type.INT, Type.BOOLEAN, Type.FLOAT);
+        }
+
+        if (term.isFloat()) {
+            if (simpleExprTail.isVoid() || simpleExprTail.isInt() || simpleExprTail.isFloat()) {
+                return new Expression(Type.FLOAT);
+            }
+            return incorrectTypeError(simpleExprTail.getType(), Type.VOID, Type.INT, Type.FLOAT);
+        }
+
+        if (term.isChar()) {
+            if (simpleExprTail.isVoid()) {
+                return new Expression(Type.CHAR);
+            }
+            return incorrectTypeError(simpleExprTail.getType(), Type.VOID);
+        }
+
+        return incorrectTypeError(term.getType(), Type.BOOLEAN, Type.INT, Type.FLOAT, Type.CHAR);
+
+    }
+
+    public Expression expressionEnd(Tag tag, Expression simpleExpr) throws Exception {
+        switch (tag) {
+
+            case EQ_EQ:
+            case NOT_EQ: {
+                return new Expression(simpleExpr.getType());
+            }
+
+            case GT:
+            case GT_EQ:
+            case LT:
+            case LT_EQ: {
+                if (simpleExpr.isNumber()) {
+                    return new Expression(simpleExpr.getType());
+                }
+                return incorrectTypeError(simpleExpr.getType(), Type.INT, Type.FLOAT);
+            }
+
+            default:
+                return syntaticError();
+
+        }
+    }
+
+    public Expression expression(Expression simpleExpr, Expression expressionEnd) throws Exception {
+
+        if (simpleExpr.isInt()) {
+            if (expressionEnd.isVoid()) {
+                return new Expression(Type.INT);
+            }
+            if (expressionEnd.isInt() || expressionEnd.isFloat() || expressionEnd.isBoolean()) {
+                return new Expression(Type.BOOLEAN);
+            }
+            return incorrectTypeError(expressionEnd.getType(), Type.VOID, Type.INT, Type.FLOAT, Type.BOOLEAN);
+        }
+
+        if (simpleExpr.isFloat()) {
+            if (expressionEnd.isVoid()) {
+                return new Expression(Type.FLOAT);
+            }
+            if (expressionEnd.isInt() || expressionEnd.isFloat()) {
+                return new Expression(Type.BOOLEAN);
+            }
+            return incorrectTypeError(expressionEnd.getType(), Type.VOID, Type.INT, Type.FLOAT);
+        }
+
+        if (simpleExpr.isBoolean()) {
+            if (expressionEnd.isVoid() || expressionEnd.isBoolean()) {
+                return new Expression(Type.BOOLEAN);
+            }
+            return incorrectTypeError(expressionEnd.getType(), Type.VOID, Type.BOOLEAN);
+        }
+
+        if (simpleExpr.isChar()) {
+            if (expressionEnd.isVoid()) {
+                return new Expression(Type.CHAR);
+            }
+            if (expressionEnd.isChar()) {
+                return new Expression(Type.BOOLEAN);
+            }
+            return incorrectTypeError(expressionEnd.getType(), Type.VOID, Type.CHAR);
+        }
+
+        return incorrectTypeError(simpleExpr.getType(), Type.INT, Type.FLOAT, Type.BOOLEAN, Type.CHAR);
+
+    }
+
+    public Expression writable(Expression simpleExpr) {
+        return new Expression(simpleExpr.getType());
+    }
+
+    public Expression writable() {
+        return new Expression(Type.LITERAL);
+    }
+
+    public Expression writeStmt() {
+        return new Expression(Type.VOID);
+    }
 }

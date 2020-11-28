@@ -39,4 +39,8 @@ public class Expression {
     public boolean isChar() {
         return type != null && type.isChar();
     }
+
+    public boolean isNumber() {
+        return type != null && type.isNumber();
+    }
 }
