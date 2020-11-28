@@ -3,15 +3,20 @@ package syntatic;
 import lexer.Lexer;
 import lexer.Tag;
 import lexer.Token;
+import lexer.Word;
+import semantic.Expression;
+import semantic.Semantic;
 
 public class Syntatic {
 
     private Token token;
 
     private final Lexer lexer;
+    private final Semantic semantic;
 
-    public Syntatic(Lexer lexer) throws Exception {
+    public Syntatic(Lexer lexer, Semantic semantic) throws Exception {
         this.lexer = lexer;
+        this.semantic = semantic;
         this.token = lexer.scan(); // Lê o primeiro token
     }
 
@@ -21,12 +26,14 @@ public class Syntatic {
     }
 
     /* Consome token */
-    void eat(Tag tag) throws Exception {
+    Token eat(Tag tag) throws Exception {
+        Token currentToken = token;
         if (token.is(tag)) {
             advance();
         } else {
             error();
         }
+        return currentToken;
     }
 
     /* Verifica fim de arquivo */
@@ -52,15 +59,15 @@ public class Syntatic {
 
     /* Erro lançado quando encontramos um token inesperado */
     private Exception unknownTokenException() {
-        return new Exception("Erro: token inesperado encontrado na linha " + lexer.getLine() + ": " + token.toString());
+        return new Exception("Erro: token inesperado encontrado na linha " + Core.line + ": " + token.toString());
     }
 
     /* Erro lançado quando encontramos fim de arquivo inesperado */
     private Exception unnexpectedEndException() {
-        return new Exception("Erro: fim de arquivo inesperado encontrado na linha " + lexer.getLine());
+        return new Exception("Erro: fim de arquivo inesperado encontrado na linha " + Core.line);
     }
 
-    private void error() throws Exception {
+    private Expression error() throws Exception {
         throw unknownTokenException();
     }
 
@@ -349,7 +356,7 @@ public class Syntatic {
         }
     }
 
-    private void expression() throws Exception {
+    private Expression expression() throws Exception {
         if (token.is(Tag.ID)
                 || token.is(Tag.INT_CONST)
                 || token.is(Tag.FLOAT_CONST)
@@ -362,6 +369,7 @@ public class Syntatic {
         } else {
             error();
         }
+        return null;
     }
 
     private void expressionEnd() throws Exception {
@@ -483,21 +491,25 @@ public class Syntatic {
         }
     }
 
-    private void factor() throws Exception {
+    private Expression factor() throws Exception {
         if (token.is(Tag.ID)) {
-            eat(Tag.ID);
-        } else if (token.is(Tag.INT_CONST) || token.is(Tag.FLOAT_CONST) || token.is(Tag.CHAR_CONST)) {
-            constant();
-        } else if (token.is(Tag.OPEN_PAR)) {
-            eat(Tag.OPEN_PAR);
-            expression();
-            eat(Tag.CLOSE_PAR);
-        } else {
-            error();
+            Token identifier = eat(Tag.ID);
+            return semantic.factor(identifier);
         }
+        if (token.is(Tag.INT_CONST) || token.is(Tag.FLOAT_CONST) || token.is(Tag.CHAR_CONST)) {
+            Expression constant = constant();
+            return semantic.factor(constant);
+        }
+        if (token.is(Tag.OPEN_PAR)) {
+            eat(Tag.OPEN_PAR);
+            Expression expression = expression();
+            eat(Tag.CLOSE_PAR);
+            return semantic.factor(expression);
+        }
+        return error();
     }
 
-    private void relop() throws Exception {
+    private Expression relop() throws Exception {
         switch (token.tag) {
             case EQ_EQ:
                 eat(Tag.EQ_EQ);
@@ -518,44 +530,57 @@ public class Syntatic {
                 eat(Tag.NOT_EQ);
                 break;
             default:
-                error();
-                break;
+                return error();
         }
+        return semantic.relop();
     }
 
-    private void addop() throws Exception {
+    private Expression addop() throws Exception {
         if (token.is(Tag.PLUS)) {
             eat(Tag.PLUS);
-        } else if (token.is(Tag.MINUS)) {
-            eat(Tag.MINUS);
-        } else if (token.is(Tag.OR_OR)) {
-            eat(Tag.OR_OR);
-        } else {
-            error();
+            return semantic.addop(Tag.PLUS);
         }
+        if (token.is(Tag.MINUS)) {
+            eat(Tag.MINUS);
+            return semantic.addop(Tag.MINUS);
+        }
+        if (token.is(Tag.OR_OR)) {
+            eat(Tag.OR_OR);
+            return semantic.addop(Tag.OR_OR);
+        }
+        return error();
     }
 
-    private void mulop() throws Exception {
+    private Expression mulop() throws Exception {
         if (token.is(Tag.TIMES)) {
             eat(Tag.TIMES);
-        } else if (token.is(Tag.DIVIDED)) {
-            eat(Tag.DIVIDED);
-        } else if (token.is(Tag.AND_AND)) {
-            eat(Tag.AND_AND);
-        } else {
-            error();
+            return semantic.mulop(Tag.TIMES);
         }
+        if (token.is(Tag.DIVIDED)) {
+            eat(Tag.DIVIDED);
+            return semantic.mulop(Tag.DIVIDED);
+        }
+        if (token.is(Tag.AND_AND)) {
+            eat(Tag.AND_AND);
+            return semantic.mulop(Tag.AND_AND);
+        }
+        return error();
     }
 
-    private void constant() throws Exception {
+    private Expression constant() throws Exception {
         if (token.is(Tag.INT_CONST)) {
             eat(Tag.INT_CONST);
-        } else if (token.is(Tag.FLOAT_CONST)) {
-            eat(Tag.FLOAT_CONST);
-        } else if (token.is(Tag.CHAR_CONST)) {
-            eat(Tag.CHAR_CONST);
-        } else {
-            error();
+            return semantic.constant(Tag.INT_CONST);
         }
+        if (token.is(Tag.FLOAT_CONST)) {
+            eat(Tag.FLOAT_CONST);
+            return semantic.constant(Tag.FLOAT_CONST);
+        }
+        if (token.is(Tag.CHAR_CONST)) {
+            eat(Tag.CHAR_CONST);
+            return semantic.constant(Tag.CHAR_CONST);
+        }
+        return error();
     }
+
 }

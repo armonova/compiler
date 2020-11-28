@@ -7,8 +7,6 @@ import java.util.*;
 
 public class Lexer {
 
-    private long line = 1; //contador de linhas
-
     private char ch = ' '; //caractere lido do arquivo
     private final FileReader file;
 
@@ -30,6 +28,8 @@ public class Lexer {
             System.out.println("Arquivo não encontrado");
             throw e;
         }
+        // Inicializa contagem de linhas
+        Core.line = 1;
         //Insere palavras reservadas na HashTable
         reserve(new Word("program", Tag.PROGRAM));
         reserve(new Word("is", Tag.IS));
@@ -147,7 +147,7 @@ public class Lexer {
         if (Character.isDefined(ch)) {
             char charValue = ch;
             if (ch == '\n') { // a quebra de linha é um caractere da tabela ASCII
-                line++;
+                Core.line++;
             }
             if (readch('\'')) {
                 return new CharConst(charValue);
@@ -171,7 +171,7 @@ public class Lexer {
     private void discardDelimiters() throws IOException {
         for (; ; readch()) {
             if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\b') continue;
-            if (ch == '\n') line++; // conta linhas
+            if (ch == '\n') Core.line++; // conta linhas
             else break;
         }
     }
@@ -179,7 +179,7 @@ public class Lexer {
     private void analyzeComment() throws Exception {
         while (Character.isDefined(ch)) {
             if (ch == '\n') {
-                line++;
+                Core.line++;
             }
             if (ch == '*') {
                 if (readch('/')) {
@@ -283,10 +283,7 @@ public class Lexer {
 
     /* Erro lançado quando encontramos um caractere inesperado */
     private Exception unknownCharException() {
-        return new Exception("Erro: caractere inesperado encontrado na linha " + line + ": '" + ch + "'");
+        return new Exception("Erro: caractere inesperado encontrado na linha " + Core.line + ": '" + ch + "'");
     }
 
-    public long getLine() {
-        return this.line;
-    }
 }
