@@ -1,6 +1,10 @@
 program teste5 is
+declare
+	a,b,c,d,e:int;
+	b,a:int;
+	x, teste5:int
+	
 begin
-	out >> ('1' > 1);
-	out >> (3 == 2)
+	out >> "spm"
 end.
 

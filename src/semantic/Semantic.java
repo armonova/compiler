@@ -13,19 +13,60 @@ public class Semantic {
     /* Nesta classe não reportamos o erro pois erros sintáticos são reportados pelo analisador sintático */
     private Expression syntaticError() {
         System.out.println("Erro sintático detectado pelo analisador semântico");
-        return new Expression(Type.VOID);
+        return new Expression();
     }
 
     /* Identificador não foi declarado */
-    private Expression undeclaredIdentifier(String lexeme) throws Exception {
+    private void undeclaredIdentifier(String lexeme) throws Exception {
         throw new Exception("Erro: identificador não declarado encontrado na linha " + Core.line + ": " + lexeme);
     }
 
+    /* Identificador já foi declarado */
+    private void declaredIdentifier(String lexeme) throws Exception {
+        throw new Exception("Erro: identificador que ja foi declarado encontrado na linha " + Core.line + ": " + lexeme);
+    }
+
     /* Tipo inesperado */
-    private Expression incorrectTypeError(Type foundType, Type... expectedType) throws Exception {
+    private Expression incorrectVariableTypeError(Type foundType, Type... expectedType) throws Exception {
         throw new Exception("Erro: tipo inesperado identificado na linha " + Core.line + ": " + foundType
                 + ". Tipo(s) esperado(s): " + Arrays.toString(expectedType));
     }
+
+    /* Classe inesperada */
+    private void incorrectVariableTypeError(IdClass foundClass) throws Exception {
+        throw new Exception("Erro: classe inesperada identificada na linha " + Core.line + ": " + foundClass
+                + ". Classe esperada: " + IdClass.VARIABLE);
+    }
+
+    /* Verifica se uma variável já foi declarada corretamente */
+    private Id assertDeclaredVariable(Token token) throws Exception {
+        Id identifierInfo = Core.currentEnviroment.get(token);
+        if (identifierInfo == null || !identifierInfo.declared()) {
+            undeclaredIdentifier(((Word) token).getLexeme());
+        } else if (!identifierInfo.getIdClass().isVariable()) {
+            incorrectVariableTypeError(identifierInfo.getIdClass());
+        }
+        return identifierInfo;
+    }
+
+    /* Verifica que um identificador não foi previamente declarado */
+    private Id assertUndeclaredVariable(Token token) throws Exception {
+        Id identifierInfo = Core.currentEnviroment.get(token);
+        if (identifierInfo == null) {
+            undeclaredIdentifier(((Word) token).getLexeme());
+        } else if (identifierInfo.declared()) {
+            declaredIdentifier(((Word) token).getLexeme());
+        }
+        return identifierInfo;
+    }
+
+    /* declara um identificador como variável */
+    private void declareVariable(Token token) throws Exception {
+        Id id = assertUndeclaredVariable(token);
+        id.setIdClass(IdClass.VARIABLE);
+    }
+
+    // Procedimentos semânticos para cada produção da linguagem
 
     public Expression constant(Tag tag) {
         switch (tag) {
@@ -69,13 +110,7 @@ public class Semantic {
     }
 
     public Expression factor(Token identifier) throws Exception {
-        Id identifierInfo = Core.currentEnviroment.get(identifier);
-        if (!(identifier instanceof Word)) {
-            return syntaticError();
-        }
-        if (identifierInfo == null || identifierInfo.typeIsNull()) {
-            return undeclaredIdentifier(((Word) identifier).getLexeme());
-        }
+        Id identifierInfo = assertDeclaredVariable(identifier);
         return new Expression(identifierInfo.getType());
     }
 
@@ -93,13 +128,13 @@ public class Semantic {
                 if (factor.isBoolean() || factor.isInt()) {
                     return new Expression(Type.BOOLEAN);
                 }
-                return incorrectTypeError(factor.getType(), Type.BOOLEAN, Type.INT);
+                return incorrectVariableTypeError(factor.getType(), Type.BOOLEAN, Type.INT);
             }
             case MINUS: {
                 if (factor.getType().isNumber()) {
                     return new Expression(factor.getType());
                 }
-                return incorrectTypeError(factor.getType(), Type.INT, Type.FLOAT);
+                return incorrectVariableTypeError(factor.getType(), Type.INT, Type.FLOAT);
             }
             default:
                 return syntaticError();
@@ -113,9 +148,9 @@ public class Semantic {
                 if (termTail.isVoid() || termTail.isBoolean()) {
                     return new Expression(Type.BOOLEAN);
                 }
-                return incorrectTypeError(termTail.getType(), Type.VOID, Type.BOOLEAN);
+                return incorrectVariableTypeError(termTail.getType(), Type.VOID, Type.BOOLEAN);
             }
-            return incorrectTypeError(factorA.getType(), Type.INT, Type.BOOLEAN);
+            return incorrectVariableTypeError(factorA.getType(), Type.INT, Type.BOOLEAN);
         }
 
         if (mulop.isNumberOp()) {
@@ -124,7 +159,7 @@ public class Semantic {
                 if (termTail.isVoid() || termTail.isInt() || termTail.isFloat()) {
                     return new Expression(Type.FLOAT);
                 }
-                return incorrectTypeError(termTail.getType(), Type.VOID, Type.INT, Type.FLOAT);
+                return incorrectVariableTypeError(termTail.getType(), Type.VOID, Type.INT, Type.FLOAT);
             }
 
             if (factorA.isInt()) {
@@ -134,19 +169,19 @@ public class Semantic {
                 if (termTail.isFloat()) {
                     return new Expression(Type.FLOAT);
                 }
-                return incorrectTypeError(termTail.getType(), Type.VOID, Type.INT, Type.FLOAT);
+                return incorrectVariableTypeError(termTail.getType(), Type.VOID, Type.INT, Type.FLOAT);
             }
 
-            return incorrectTypeError(factorA.getType(), Type.INT, Type.FLOAT);
+            return incorrectVariableTypeError(factorA.getType(), Type.INT, Type.FLOAT);
 
         }
 
-        return incorrectTypeError(mulop.getType(), Type.BOOLEAN_OP, Type.NUMBER_OP);
+        return incorrectVariableTypeError(mulop.getType(), Type.BOOLEAN_OP, Type.NUMBER_OP);
 
     }
 
     public Expression lambda() {
-        return new Expression(Type.VOID);
+        return new Expression();
     }
 
     public Expression term(Expression factorA, Expression termTail) throws Exception {
@@ -155,7 +190,7 @@ public class Semantic {
             if (termTail.isBoolean() || termTail.isVoid()) {
                 return new Expression(Type.BOOLEAN);
             }
-            return incorrectTypeError(termTail.getType(), Type.BOOLEAN, Type.VOID);
+            return incorrectVariableTypeError(termTail.getType(), Type.BOOLEAN, Type.VOID);
         }
 
         if (factorA.isInt()) {
@@ -168,24 +203,24 @@ public class Semantic {
             if (termTail.isFloat()) {
                 return new Expression(Type.FLOAT);
             }
-            return incorrectTypeError(termTail.getType(), Type.INT, Type.BOOLEAN, Type.FLOAT);
+            return incorrectVariableTypeError(termTail.getType(), Type.INT, Type.BOOLEAN, Type.FLOAT);
         }
 
         if (factorA.isFloat()) {
             if (termTail.isVoid() || termTail.isInt() || termTail.isFloat()) {
                 return new Expression(Type.FLOAT);
             }
-            return incorrectTypeError(termTail.getType(), Type.VOID, Type.INT, Type.FLOAT);
+            return incorrectVariableTypeError(termTail.getType(), Type.VOID, Type.INT, Type.FLOAT);
         }
 
         if (factorA.isChar()) {
             if (termTail.isVoid()) {
                 return new Expression(Type.CHAR);
             }
-            return incorrectTypeError(termTail.getType(), Type.VOID);
+            return incorrectVariableTypeError(termTail.getType(), Type.VOID);
         }
 
-        return incorrectTypeError(factorA.getType(), Type.BOOLEAN, Type.INT, Type.FLOAT, Type.CHAR);
+        return incorrectVariableTypeError(factorA.getType(), Type.BOOLEAN, Type.INT, Type.FLOAT, Type.CHAR);
 
     }
 
@@ -196,9 +231,9 @@ public class Semantic {
                 if (simpleExprTail.isVoid() || simpleExprTail.isBoolean()) {
                     return new Expression(Type.BOOLEAN);
                 }
-                return incorrectTypeError(simpleExprTail.getType(), Type.VOID, Type.BOOLEAN);
+                return incorrectVariableTypeError(simpleExprTail.getType(), Type.VOID, Type.BOOLEAN);
             }
-            return incorrectTypeError(term.getType(), Type.INT, Type.BOOLEAN);
+            return incorrectVariableTypeError(term.getType(), Type.INT, Type.BOOLEAN);
         }
 
         if (addop.isNumberOp()) {
@@ -207,7 +242,7 @@ public class Semantic {
                 if (simpleExprTail.isVoid() || simpleExprTail.isInt() || simpleExprTail.isFloat()) {
                     return new Expression(Type.FLOAT);
                 }
-                return incorrectTypeError(simpleExprTail.getType(), Type.VOID, Type.INT, Type.FLOAT);
+                return incorrectVariableTypeError(simpleExprTail.getType(), Type.VOID, Type.INT, Type.FLOAT);
             }
 
             if (term.isInt()) {
@@ -217,14 +252,14 @@ public class Semantic {
                 if (simpleExprTail.isFloat()) {
                     return new Expression(Type.FLOAT);
                 }
-                return incorrectTypeError(simpleExprTail.getType(), Type.VOID, Type.INT, Type.FLOAT);
+                return incorrectVariableTypeError(simpleExprTail.getType(), Type.VOID, Type.INT, Type.FLOAT);
             }
 
-            return incorrectTypeError(term.getType(), Type.INT, Type.FLOAT);
+            return incorrectVariableTypeError(term.getType(), Type.INT, Type.FLOAT);
 
         }
 
-        return incorrectTypeError(addop.getType(), Type.BOOLEAN_OP, Type.NUMBER_OP);
+        return incorrectVariableTypeError(addop.getType(), Type.BOOLEAN_OP, Type.NUMBER_OP);
 
     }
 
@@ -234,7 +269,7 @@ public class Semantic {
             if (simpleExprTail.isBoolean() || simpleExprTail.isVoid()) {
                 return new Expression(Type.BOOLEAN);
             }
-            return incorrectTypeError(simpleExprTail.getType(), Type.BOOLEAN, Type.VOID);
+            return incorrectVariableTypeError(simpleExprTail.getType(), Type.BOOLEAN, Type.VOID);
         }
 
         if (term.isInt()) {
@@ -247,24 +282,24 @@ public class Semantic {
             if (simpleExprTail.isFloat()) {
                 return new Expression(Type.FLOAT);
             }
-            return incorrectTypeError(simpleExprTail.getType(), Type.INT, Type.BOOLEAN, Type.FLOAT);
+            return incorrectVariableTypeError(simpleExprTail.getType(), Type.INT, Type.BOOLEAN, Type.FLOAT);
         }
 
         if (term.isFloat()) {
             if (simpleExprTail.isVoid() || simpleExprTail.isInt() || simpleExprTail.isFloat()) {
                 return new Expression(Type.FLOAT);
             }
-            return incorrectTypeError(simpleExprTail.getType(), Type.VOID, Type.INT, Type.FLOAT);
+            return incorrectVariableTypeError(simpleExprTail.getType(), Type.VOID, Type.INT, Type.FLOAT);
         }
 
         if (term.isChar()) {
             if (simpleExprTail.isVoid()) {
                 return new Expression(Type.CHAR);
             }
-            return incorrectTypeError(simpleExprTail.getType(), Type.VOID);
+            return incorrectVariableTypeError(simpleExprTail.getType(), Type.VOID);
         }
 
-        return incorrectTypeError(term.getType(), Type.BOOLEAN, Type.INT, Type.FLOAT, Type.CHAR);
+        return incorrectVariableTypeError(term.getType(), Type.BOOLEAN, Type.INT, Type.FLOAT, Type.CHAR);
 
     }
 
@@ -283,7 +318,7 @@ public class Semantic {
                 if (simpleExpr.isNumber()) {
                     return new Expression(simpleExpr.getType());
                 }
-                return incorrectTypeError(simpleExpr.getType(), Type.INT, Type.FLOAT);
+                return incorrectVariableTypeError(simpleExpr.getType(), Type.INT, Type.FLOAT);
             }
 
             default:
@@ -301,7 +336,7 @@ public class Semantic {
             if (expressionEnd.isInt() || expressionEnd.isFloat() || expressionEnd.isBoolean()) {
                 return new Expression(Type.BOOLEAN);
             }
-            return incorrectTypeError(expressionEnd.getType(), Type.VOID, Type.INT, Type.FLOAT, Type.BOOLEAN);
+            return incorrectVariableTypeError(expressionEnd.getType(), Type.VOID, Type.INT, Type.FLOAT, Type.BOOLEAN);
         }
 
         if (simpleExpr.isFloat()) {
@@ -311,14 +346,14 @@ public class Semantic {
             if (expressionEnd.isInt() || expressionEnd.isFloat()) {
                 return new Expression(Type.BOOLEAN);
             }
-            return incorrectTypeError(expressionEnd.getType(), Type.VOID, Type.INT, Type.FLOAT);
+            return incorrectVariableTypeError(expressionEnd.getType(), Type.VOID, Type.INT, Type.FLOAT);
         }
 
         if (simpleExpr.isBoolean()) {
             if (expressionEnd.isVoid() || expressionEnd.isBoolean()) {
                 return new Expression(Type.BOOLEAN);
             }
-            return incorrectTypeError(expressionEnd.getType(), Type.VOID, Type.BOOLEAN);
+            return incorrectVariableTypeError(expressionEnd.getType(), Type.VOID, Type.BOOLEAN);
         }
 
         if (simpleExpr.isChar()) {
@@ -328,10 +363,10 @@ public class Semantic {
             if (expressionEnd.isChar()) {
                 return new Expression(Type.BOOLEAN);
             }
-            return incorrectTypeError(expressionEnd.getType(), Type.VOID, Type.CHAR);
+            return incorrectVariableTypeError(expressionEnd.getType(), Type.VOID, Type.CHAR);
         }
 
-        return incorrectTypeError(simpleExpr.getType(), Type.INT, Type.FLOAT, Type.BOOLEAN, Type.CHAR);
+        return incorrectVariableTypeError(simpleExpr.getType(), Type.INT, Type.FLOAT, Type.BOOLEAN, Type.CHAR);
 
     }
 
@@ -344,6 +379,86 @@ public class Semantic {
     }
 
     public Expression writeStmt() {
-        return new Expression(Type.VOID);
+        return new Expression();
+    }
+
+    public Expression readStmt(Token identifier) throws Exception {
+        assertDeclaredVariable(identifier);
+        return new Expression();
+    }
+
+    public Expression stmtPrefix() {
+        return new Expression();
+    }
+
+    public Expression whileStmt() {
+        return new Expression();
+    }
+
+    public Expression stmtSuffix() {
+        return new Expression();
+    }
+
+    public Expression repeatStmt() {
+        return new Expression();
+    }
+
+    public Expression condition(Expression expression) throws Exception {
+        if (expression.isBoolean() || expression.isInt()) {
+            return new Expression(Type.BOOLEAN);
+        }
+        return incorrectVariableTypeError(expression.getType(), Type.BOOLEAN, Type.INT);
+    }
+
+    public Expression ifStmtEnd() {
+        return new Expression();
+    }
+
+    public Expression ifStmt() {
+        return new Expression();
+    }
+
+    public Expression assignStmt(Token identifier, Expression simpleExpr) throws Exception {
+        Id identifierInfo = assertDeclaredVariable(identifier);
+        if (identifierInfo.getType().isFloat()) {
+            if (simpleExpr.isInt() || simpleExpr.isFloat()) {
+                return new Expression();
+            }
+            return incorrectVariableTypeError(simpleExpr.getType(), Type.FLOAT, Type.INT);
+        }
+        if (identifierInfo.getType().equals(simpleExpr.getType())) {
+            return new Expression();
+        }
+        return incorrectVariableTypeError(simpleExpr.getType(), identifierInfo.getType());
+    }
+
+    public Expression stmt() {
+        return new Expression();
+    }
+
+    public Expression stmtTail() {
+        return new Expression();
+    }
+
+    public Expression stmtList() {
+        return new Expression();
+    }
+
+    public Expression type(Tag tag) {
+        switch (tag) {
+            case INT:
+                return new Expression(Type.INT);
+            case FLOAT:
+                return new Expression(Type.FLOAT);
+            case CHAR:
+                return new Expression(Type.CHAR);
+            default:
+                return syntaticError();
+        }
+    }
+
+    public Expression identTail(Token identifier, Expression identTail) throws Exception {
+        declareVariable(identifier);
+        return new Expression(identTail.getVariableList(), identifier);
     }
 }

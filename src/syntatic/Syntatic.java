@@ -6,6 +6,7 @@ import lexer.Token;
 import semantic.Expression;
 import semantic.Semantic;
 
+@SuppressWarnings("UnusedReturnValue")
 public class Syntatic {
 
     private Token token;
@@ -152,35 +153,36 @@ public class Syntatic {
         }
     }
 
-    private void identTail() throws Exception {
+    private Expression identTail() throws Exception {
         if (token.is(Tag.COMMA)) {
             eat(Tag.COMMA);
-            eat(Tag.ID);
-            identTail();
-        } else if (token.is(Tag.COLON)) {
-            lambda();
-        } else {
-            error();
+            Token identifier = eat(Tag.ID);
+            Expression identTail = identTail();
+            return semantic.identTail(identifier, identTail);
         }
+        if (token.is(Tag.COLON)) {
+            return lambda();
+        }
+        return error();
     }
 
-    private void type() throws Exception {
+    private Expression type() throws Exception {
         switch (token.tag) {
             case INT:
                 eat(Tag.INT);
-                break;
+                return semantic.type(Tag.INT);
             case FLOAT:
                 eat(Tag.FLOAT);
-                break;
+                return semantic.type(Tag.FLOAT);
             case CHAR:
                 eat(Tag.CHAR);
-                break;
+                return semantic.type(Tag.CHAR);
             default:
-                error();
+                return error();
         }
     }
 
-    private void stmtList() throws Exception {
+    private Expression stmtList() throws Exception {
         if (token.is(Tag.ID)
                 || token.is(Tag.IF)
                 || token.is(Tag.WHILE)
@@ -189,26 +191,26 @@ public class Syntatic {
                 || token.is(Tag.OUT)) {
             stmt();
             stmtTail();
-        } else {
-            error();
+            return semantic.stmtList();
         }
+        return error();
     }
 
-    private void stmtTail() throws Exception {
+    private Expression stmtTail() throws Exception {
         if (token.is(Tag.SEMICOLON)) {
             eat(Tag.SEMICOLON);
             stmt();
             stmtTail();
+            return semantic.stmtTail();
         } else if (token.is(Tag.END)
                 || token.is(Tag.ELSE)
                 || token.is(Tag.UNTIL)) {
-            lambda();
-        } else {
-            error();
+            return lambda();
         }
+        return error();
     }
 
-    private void stmt() throws Exception {
+    private Expression stmt() throws Exception {
         switch (token.tag) {
             case ID:
                 assignStmt();
@@ -229,45 +231,48 @@ public class Syntatic {
                 writeStmt();
                 break;
             default:
-                error();
+                return error();
         }
+        return semantic.stmt();
     }
 
-    private void assignStmt() throws Exception {
+    private Expression assignStmt() throws Exception {
         if (token.is(Tag.ID)) {
-            eat(Tag.ID);
+            Token identifier = eat(Tag.ID);
             eat(Tag.EQ);
-            simpleExpr();
-        } else {
-            error();
+            Expression simpleExpr = simpleExpr();
+            return semantic.assignStmt(identifier, simpleExpr);
         }
+        return error();
     }
 
-    private void ifStmt() throws Exception {
+    private Expression ifStmt() throws Exception {
         if (token.is(Tag.IF)) {
             eat(Tag.IF);
             condition();
             eat(Tag.THEN);
             stmtList();
             ifStmtEnd();
-        } else {
-            error();
+            return semantic.ifStmt();
         }
+        return error();
     }
 
-    private void ifStmtEnd() throws Exception {
+    private Expression ifStmtEnd() throws Exception {
         if (token.is(Tag.END)) {
             eat(Tag.END);
-        } else if (token.is(Tag.ELSE)) {
+            return semantic.ifStmtEnd();
+        }
+        if (token.is(Tag.ELSE)) {
             eat(Tag.ELSE);
             stmtList();
             eat(Tag.END);
-        } else {
-            error();
+            return semantic.ifStmtEnd();
         }
+        return error();
     }
 
-    private void condition() throws Exception {
+    private Expression condition() throws Exception {
         if (token.is(Tag.ID)
                 || token.is(Tag.INT_CONST)
                 || token.is(Tag.FLOAT_CONST)
@@ -275,59 +280,59 @@ public class Syntatic {
                 || token.is(Tag.OPEN_PAR)
                 || token.is(Tag.NOT)
                 || token.is(Tag.MINUS)) {
-            expression();
-        } else {
-            error();
+            Expression expression = expression();
+            return semantic.condition(expression);
         }
+        return error();
     }
 
-    private void repeatStmt() throws Exception {
+    private Expression repeatStmt() throws Exception {
         if (token.is(Tag.REPEAT)) {
             eat(Tag.REPEAT);
             stmtList();
             stmtSuffix();
-        } else {
-            error();
+            return semantic.repeatStmt();
         }
+        return error();
     }
 
-    private void stmtSuffix() throws Exception {
+    private Expression stmtSuffix() throws Exception {
         if (token.is(Tag.UNTIL)) {
             eat(Tag.UNTIL);
             condition();
-        } else {
-            error();
+            return semantic.stmtSuffix();
         }
+        return error();
     }
 
-    private void whileStmt() throws Exception {
+    private Expression whileStmt() throws Exception {
         if (token.is(Tag.WHILE)) {
             stmtPrefix();
             stmtList();
             eat(Tag.END);
-        } else {
-            error();
+            return semantic.whileStmt();
         }
+        return error();
     }
 
-    private void stmtPrefix() throws Exception {
+    private Expression stmtPrefix() throws Exception {
         if (token.is(Tag.WHILE)) {
             eat(Tag.WHILE);
             condition();
             eat(Tag.DO);
-        } else {
-            error();
+            return semantic.stmtPrefix();
         }
+        return error();
     }
 
-    private void readStmt() throws Exception {
+    private Expression readStmt() throws Exception {
         if (token.is(Tag.IN)) {
             eat(Tag.IN);
             eat(Tag.LT_LT);
-            eat(Tag.ID);
-        } else {
-            error();
+            Token identifier = eat(Tag.ID);
+            return semantic.readStmt(identifier);
         }
+        return error();
     }
 
     private Expression writeStmt() throws Exception {

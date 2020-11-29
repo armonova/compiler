@@ -1,15 +1,37 @@
 package semantic;
 
+import lexer.Token;
+
+import java.util.ArrayList;
+
 public class Expression {
 
     private final Type type;
+    private final ArrayList<Token> variableList;
+
+    public Expression() {
+        this.type = Type.VOID;
+        this.variableList = new ArrayList<>();
+    }
 
     public Expression(Type type) {
         this.type = type;
+        this.variableList = new ArrayList<>();
+    }
+
+    public Expression(ArrayList<Token> tokenList, Token newToken) {
+        this.type = Type.VOID;
+        this.variableList = new ArrayList<>();
+        this.variableList.addAll(tokenList);
+        this.variableList.add(newToken);
     }
 
     public Type getType() {
         return type;
+    }
+
+    public ArrayList<Token> getVariableList() {
+        return variableList;
     }
 
     public boolean isBoolean() {
