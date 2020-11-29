@@ -1,10 +1,11 @@
 program teste5 is
 declare
-	a,b,c,d,e:int;
-	var__________:float;
-	x, teste5:char
+	a, b,c,d,e:int;
+	y:float;
+	x:char
 	
 begin
-	out >> "spm"
+	out >> "spm";
+	if (teste5 > 1) 
 end.
 

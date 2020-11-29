@@ -55,7 +55,7 @@ public class Syntatic {
         } catch (NullPointerException npe) { // O método lexer.scan retorna null para EOF e apenas para EOF
             throw unnexpectedEndException();
         }
-        System.out.println("\nAnálise léxica e sintática concluída com sucesso.\n");
+        System.out.println("\nAnálise léxica, sintática e semântica concluída com sucesso.\n");
     }
 
     /* Erro lançado quando encontramos um token inesperado */
