@@ -1,8 +1,8 @@
 program teste5 is
 declare
 	a,b,c,d,e:int;
-	b,a:int;
-	x, teste5:int
+	var__________:float;
+	x, teste5:char
 	
 begin
 	out >> "spm"

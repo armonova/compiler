@@ -84,18 +84,19 @@ public class Syntatic {
         }
     }
 
-    private void programNode() throws Exception {
+    private Expression programNode() throws Exception {
         if (token.is(Tag.PROGRAM)) {
             eat(Tag.PROGRAM);
-            eat(Tag.ID);
+            Token identifier = eat(Tag.ID);
+            semantic.declareProgram(identifier);
             eat(Tag.IS);
             body();
-        } else {
-            error();
+            return semantic.programNode();
         }
+        return error();
     }
 
-    private void body() throws Exception {
+    private Expression body() throws Exception {
         if (token.is(Tag.DECLARE)) {
             eat(Tag.DECLARE);
             declList();
@@ -103,54 +104,58 @@ public class Syntatic {
             stmtList();
             eat(Tag.END);
             eat(Tag.DOT);
-        } else if (token.is(Tag.BEGIN)) {
+            return semantic.body();
+        }
+        if (token.is(Tag.BEGIN)) {
             eat(Tag.BEGIN);
             stmtList();
             eat(Tag.END);
             eat(Tag.DOT);
-        } else {
-            error();
+            return semantic.body();
         }
+        return error();
     }
 
-    private void declList() throws Exception {
+    private Expression declList() throws Exception {
         if (token.is(Tag.ID)) {
             decl();
             declTail();
-        } else {
-            error();
+            return semantic.declList();
         }
+        return error();
     }
 
-    private void declTail() throws Exception {
+    private Expression declTail() throws Exception {
         if (token.is(Tag.SEMICOLON)) {
             eat(Tag.SEMICOLON);
             decl();
             declTail();
-        } else if (token.is(Tag.BEGIN)) {
-            lambda();
-        } else {
-            error();
+            return semantic.declTail();
         }
+        if (token.is(Tag.BEGIN)) {
+            return lambda();
+        }
+        return error();
+
     }
 
-    private void decl() throws Exception {
+    private Expression decl() throws Exception {
         if (token.is(Tag.ID)) {
-            identLit();
+            Expression identList = identLit();
             eat(Tag.COLON);
-            type();
-        } else {
-            error();
+            Expression type = type();
+            return semantic.decl(identList, type);
         }
+        return error();
     }
 
-    private void identLit() throws Exception {
+    private Expression identLit() throws Exception {
         if (token.is(Tag.ID)) {
-            eat(Tag.ID);
-            identTail();
-        } else {
-            error();
+            Token identifier = eat(Tag.ID);
+            Expression identTail = identTail();
+            return semantic.identList(identifier, identTail);
         }
+        return error();
     }
 
     private Expression identTail() throws Exception {

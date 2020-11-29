@@ -66,6 +66,18 @@ public class Semantic {
         id.setIdClass(IdClass.VARIABLE);
     }
 
+    /* declara um identificador como variável */
+    public void declareProgram(Token token) throws Exception {
+        Id id = assertUndeclaredVariable(token);
+        id.setIdClass(IdClass.PROGRAM);
+    }
+
+    /* Define um tipo para uma variável */
+    private void assignType(Token token, Type type) {
+        Id identifierInfo = Core.currentEnviroment.get(token);
+        identifierInfo.setType(type);
+    }
+
     // Procedimentos semânticos para cada produção da linguagem
 
     public Expression constant(Tag tag) {
@@ -460,5 +472,33 @@ public class Semantic {
     public Expression identTail(Token identifier, Expression identTail) throws Exception {
         declareVariable(identifier);
         return new Expression(identTail.getVariableList(), identifier);
+    }
+
+    public Expression identList(Token identifier, Expression identTail) throws Exception {
+        declareVariable(identifier);
+        return new Expression(identTail.getVariableList(), identifier);
+    }
+
+    public Expression decl(Expression identList, Expression type) {
+        for (Token token : identList.getVariableList()) {
+            assignType(token, type.getType());
+        }
+        return new Expression();
+    }
+
+    public Expression declTail() {
+        return new Expression();
+    }
+
+    public Expression declList() {
+        return new Expression();
+    }
+
+    public Expression body() {
+        return new Expression();
+    }
+
+    public Expression programNode() {
+        return new Expression();
     }
 }
