@@ -46,7 +46,7 @@ public class Env {
     /* O Token é pesquisado do ambiente atual para os anteriores */
     public Id get(Token token) {
         for (Env env = this; env != null; env = env.prev) {
-            Id found = (Id) env.table.get(token);
+            Id found = env.table.get(token);
             if (found != null) // se Token existir em uma das TS
                 return found;
         }
@@ -76,5 +76,10 @@ public class Env {
             return put(token);
         }
         return id;
+    }
+
+    /* Retorna o Id do token deseja, mas limita a busca apenas ao ambiente atual */
+    public Id getOnCurrent(Token token) {
+        return this.table.get(token);
     }
 }

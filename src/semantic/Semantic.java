@@ -49,9 +49,9 @@ public class Semantic {
         return identifierInfo;
     }
 
-    /* Verifica que um identificador não foi previamente declarado */
+    /* Verifica que um identificador não foi previamente declarado no ambiente atual */
     private Id assertUndeclaredVariable(Token token) throws Exception {
-        Id identifierInfo = Core.currentEnviroment.get(token);
+        Id identifierInfo = Core.currentEnviroment.getOnCurrent(token);
         if (identifierInfo == null) {
             undeclaredIdentifier(((Word) token).getLexeme());
         } else if (identifierInfo.declared()) {
